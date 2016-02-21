@@ -1,5 +1,6 @@
 #include "nfa.hpp"
 #include <iostream>
+#include "prettyprint.hpp"
 
 /*
     NFA with transition function as a map from characters to states.
@@ -12,7 +13,7 @@ void NFA::advance(int state, char c, nfa_set &new_states){
     }
 }
 void NFA::advance_set(nfa_set reached_sets, char c, nfa_set &new_states){
-    for(int i = 0; i < nstates; i++){
+    for(int i = 0; i < size; i++){
         if(reached_sets[i]) advance(i, c, new_states);
     }
 }
@@ -23,16 +24,10 @@ void NFA::epsilon_closure(int state, nfa_set &closure){
             epsilon_closure(new_state, closure);
 }
 void NFA::epsilon_closure_set(nfa_set reached_sets, nfa_set &closure){
-    for(int i = 0; i < nstates; i++){
+    for(int i = 0; i < size; i++){
         if(reached_sets[i]) epsilon_closure(i, closure);
     }
-}
-
-void print_nfa_set(nfa_set s){
-    for(int i = 0; i < MAX_NFA_STATES; i++){
-        if(s[i]) std::cout<<i<<" ";
-    }
-    std::cout<<"\n";
+    // std::cout<<"eps closure of "<<reached_sets<<" is "<<closure<<"\n";
 }
 
 // evaluate NFA on s
@@ -42,17 +37,19 @@ int NFA::accept(std::string s){
     // init to start_states
     for(int state: start_states)
         current_states[state] = 1;
+    // NOTE will this be buggy?
     epsilon_closure_set(current_states, current_states);
     for(char c: s){
         // NOTE can we make do without a copy?
         nfa_set new_states = nfa_set();
         advance_set(current_states, c, new_states);
         // NOTE better copy?
-        for(int i = 0; i < nstates; i++)
+        for(int i = 0; i < size; i++)
             current_states[i] = new_states[i];
         epsilon_closure_set(current_states, current_states);
     }
-    for(int i = 0; i < nstates; i++){
+    // std::cout<<" at end of processing "<<current_states<<"\n";
+    for(int i = 0; i < size; i++){
         if(states[i].is_final && current_states[i])
             return true;
     }
@@ -74,15 +71,22 @@ void NFA::make_start(int state){
         start_states.push_back(state);
 }
 
+// NFA operations
+NFA NFA_Op::branch(NFA n1, NFA n2){
+    return n1;
+}
+
 // simple tester
 int testNFA(std::string s){
-    NFA test(3);
-    test.make_final(2);
+    NFA test(4); // [a|b]*
+    test.make_final(3);
     test.make_start(0);
     test.add_transition(0, 1, (char)0);
-    test.add_transition(0,0,'a');
-    test.add_transition(0,2,'a');
-    test.add_transition(0,1,'c');
+    test.add_transition(0, 3, (char)0);
+    test.add_transition(2, 1, (char)0);
+    test.add_transition(2, 3, (char)0);
+    test.add_transition(1,2,'a');
     test.add_transition(1,2,'b');
+    // std::cout<<test.transitions<<"\n";
     return test.accept(s);
 }

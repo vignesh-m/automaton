@@ -21,14 +21,7 @@ typedef std::vector<state> state_vector;
 typedef std::vector<int> vi;
 class NFA{
 private:
-    // transitions contains map of next state indices for each state
-    std::vector<transition> transitions;
-    // number of states
-    int nstates;
-    // list of states
-    state_vector states;
-    // list of start state indices.
-    vi start_states;
+
 
     void advance(int , char , nfa_set&);
     void advance_set(nfa_set , char , nfa_set&);
@@ -36,23 +29,40 @@ private:
     void epsilon_closure_set(nfa_set reached_sets, nfa_set &closure);
 
 public:
+    // TODO move to private
+    // transitions contains map of next state indices for each state
+    std::vector<transition> transitions;
+    // number of states
+    int size;
+    // list of states
+    state_vector states;
+    // list of start state indices.
+    vi start_states;
+
+    // main evaluation function
     int accept(std::string s);
+
+    // constructors
     NFA(state_vector _states, std::vector<transition> _transitions, std::vector<int> _start_states){
         states = _states;
         transitions = _transitions;
         start_states = _start_states;
-        nstates = states.size();
+        size = states.size();
     }
     NFA(int n){
         states = state_vector(n,(state){0});
         transitions = std::vector<transition>(n);
         start_states = vi();
-        nstates = n;
+        size = n;
     }
     void add_transition(int from, int to, char c);
     void make_final(int state);
     void make_start(int state);
 };
 
+namespace NFA_Op{
+    // 'or' of two NFAs using eps transitions.
+    NFA branch(NFA , NFA);
+}
 int testNFA(std::string);
 #endif
