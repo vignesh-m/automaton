@@ -71,10 +71,6 @@ void NFA::make_start(int state){
         start_states.push_back(state);
 }
 
-// NFA operations
-NFA NFA_Op::branch(NFA n1, NFA n2){
-    return n1;
-}
 
 // simple tester
 int testNFA(std::string s){

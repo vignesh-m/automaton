@@ -59,10 +59,5 @@ public:
     void make_final(int state);
     void make_start(int state);
 };
-
-namespace NFA_Op{
-    // 'or' of two NFAs using eps transitions.
-    NFA branch(NFA , NFA);
-}
 int testNFA(std::string);
 #endif
